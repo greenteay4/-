@@ -135,13 +135,20 @@ input,select,textarea{border-radius:8px}
 .wgrp .week .day{background:color-mix(in srgb,var(--wc) 17%,var(--card))}
 .wgrp .week .day.off{background:color-mix(in srgb,var(--wc) 30%,var(--card))}
 .wgrp .week .day.empty{background:transparent}
+.topscroll{overflow-x:auto;overflow-y:hidden;margin-bottom:4px}.topscroll div{height:1px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:20px 12px;overflow:auto;z-index:50}
+.modal[hidden]{display:none}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:560px;width:100%;padding:16px}
+.gs{display:grid;gap:6px;border-top:1px solid var(--line);padding:12px 0}
+#toTop{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:3px 9px;font-size:.7rem;opacity:.75;z-index:40;border-radius:999px}
+.wgrp.w0{--wc:#4ade80}.wgrp.w1{--wc:#38bdf8}
 </style>
 </head>
 <body>
-<main>
+<main id="top">
 <div class="top">
-  <div><h1>บันทึกการทำงาน</h1><p class="sub">เครื่องมือบันทึกเวลาเข้างานสำหรับเพื่อน ๆ ที่ทำงานในเกาหลี เลือกกะแล้วเว็บคิดโอที ค่ากะดึก และเงินที่จะได้ให้เลย ไม่ต้องจดเอง ไม่ต้องกดเครื่องคิดเลขทุกเดือน</p><p class="sub" id="saved">ข้อมูลบันทึกอัตโนมัติในเครื่องนี้ทุกครั้งที่แก้ไข</p></div>
-  <div style="display:flex;gap:8px;align-items:end"><div><label for="mSel">เดือน / ปี</label><input type="hidden" id="month"><div style="display:flex;gap:4px;align-items:center"><select id="mSel" style="width:auto"></select><span>/</span><select id="ySel" style="width:auto"></select></div></div><button class="alt" id="themeBtn" type="button" aria-label="สลับโหมดสว่างหรือมืด"></button></div>
+  <div><h1>บันทึกการทำงาน</h1><p class="sub">ทำขึ้นมาเพื่อให้คนที่ทำงานที่เกาหลีใต้สะดวกสบายมากขึ้นในการบันทึกเวลาเข้างานของตัวเอง อีกทั้งยังมีเครื่องมือที่ช่วยคำนวณเงินเดือนคร่าว ๆ ที่คาดว่าจะได้รับ ไม่ต้องกดเครื่องคิดเลขเองทุกเดือนหรือทุกปี และถ้าต้องการนำข้อมูลการเข้างานของตัวเองออกไปใช้เป็นหลักฐาน ก็ทำได้ง่าย ๆ แค่กดปุ่ม "ดาวน์โหลด" เพียงเท่านี้ก็จะได้ข้อมูลเข้า-ออกงานที่บันทึกไว้ทั้งหมด</p><p class="sub"><i>* ข้อมูลนี้เป็นเพียงการคำนวณคร่าว ๆ เท่านั้น</i></p><p class="sub" id="saved">ข้อมูลบันทึกอัตโนมัติในเครื่องนี้ทุกครั้งที่แก้ไข</p></div>
+  <div style="display:flex;gap:8px;align-items:end"><div><label for="mSel">เดือน / ปี</label><input type="hidden" id="month"><div style="display:flex;gap:4px;align-items:center"><select id="mSel" style="width:auto"></select><span>/</span><select id="ySel" style="width:auto"></select></div></div><button class="alt" id="helpBtn" type="button">วิธีใช้งาน</button><button class="alt" id="themeBtn" type="button" aria-label="สลับโหมดสว่างหรือมืด"></button></div>
 </div>
 
 <section class="card hero" aria-live="polite">
@@ -158,46 +165,47 @@ input,select,textarea{border-radius:8px}
   
 </section>
 <section class="card">
-  <h2>บันทึกการเข้างาน</h2>
-  <div class="scroll"><div id="rows" class="weeks"></div></div>
+  <h2>1. บันทึกการเข้างาน</h2>
+  <div class="topscroll" id="topScroll"><div id="topInner"></div></div><div class="scroll" id="rowsScroll"><div id="rows" class="weeks"></div></div>
   <div id="mini" class="mini"></div>
   <div class="tool"><select id="dlScope" aria-label="ขอบเขตการดาวน์โหลด"><option value="month">เฉพาะหน้านี้</option><option value="year">ทั้งปี</option></select><button id="dlBtn">ดาวน์โหลด</button><span class="sub" id="dlMsg" style="margin:0"></span></div>
+  <p class="sub">หากต้องการข้อมูลเข้า-ออกงาน ให้กดปุ่ม "ดาวน์โหลด" จะได้ไฟล์รูปภาพที่มีกะ เวลาเข้า-ออก เวลาพัก โอที กะดึก และหมายเหตุ พร้อมสรุปจำนวนวันและชั่วโมงทำงาน เลือกได้ว่าจะเอาเฉพาะเดือนที่เปิดอยู่หรือทั้งปี นำไปเก็บหรือใช้เป็นหลักฐานได้
   <img id="dlPrev" alt="ตัวอย่างไฟล์" style="display:none;max-width:100%;margin-top:10px;border:1px solid var(--line);border-radius:6px">
   <div class="tool"><button class="alt" id="clear">ล้างเดือนนี้</button></div>
   <p class="sub">กะดึกนับตามวันที่เริ่มกะ แก้เวลาเข้า-ออกและเวลาพักของแต่ละวันได้</p>
 </section>
 <section class="card">
-  <h2>รายการหัก</h2>
-  <label class="chk" style="margin-top:0"><input type="checkbox" id="dedOn" style="width:auto;margin-right:6px">คิดรายการหักและแสดงเงินเข้าบัญชี</label>
-  <p class="sub">ฐานที่แจ้งไว้ใช้ทุกเดือน กรอกฐานที่นายจ้างแจ้งไว้ (ดูจากสลิปหรือถามฝ่ายบุคคล) ถ้าเว้นว่างจะไม่คิดรายการหักประกัน</p>
+  <h2>2. รายการหัก</h2>
+  <p class="sub">กรอกยอดที่ถูกหักตามสลิปของเดือนนั้น ไม่มีรายการไหนให้เว้นว่าง ประกันดูแลระยะยาวและภาษีท้องถิ่นเว็บคำนวณให้เอง</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
-  <div><label for="b_nps">เงินบำนาญ (국민연금)</label><input type="number" id="b_nps" min="0"></div>
-  <div><label for="b_nhi">ประกันสุขภาพ (건강보험)</label><input type="number" id="b_nhi" min="0"></div>
-  <div><label for="b_ei">ประกันการว่างงาน (고용보험)</label><input type="number" id="b_ei" min="0"></div></div>
-  <p class="sub" style="margin-top:14px">ของเดือนนี้ (เปลี่ยนตามเดือนที่เลือก)</p>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
-  <div><label for="tax">ภาษีเงินได้ (소득세) ตามสลิป</label><input type="number" id="tax" min="0"></div>
+  <div><label for="d_nps">เงินบำนาญ (국민연금)</label><input type="number" id="d_nps" min="0"></div>
+  <div><label for="d_nhi">ประกันสุขภาพ (건강보험)</label><input type="number" id="d_nhi" min="0"></div>
+  <div><label for="d_ei">ประกันการว่างงาน (고용보험)</label><input type="number" id="d_ei" min="0"></div>
+  <div><label for="tax">ภาษีเงินได้ (소득세)</label><input type="number" id="tax" min="0"></div>
   <div><label for="other">ค่าห้อง</label><input type="number" id="other" min="0"></div>
   <div><label for="util">ค่าไฟ-แก๊ส</label><input type="number" id="util" min="0"></div></div>
 </section>
-<section class="card" id="chartCard"><div class="chartbox"><div class="hd"><b id="chartTitle"></b><span class="sub" id="chartTot" style="margin:0"></span></div><div class="bars" id="chart"></div><p class="sub" style="margin:8px 0 0">แตะแท่งเพื่อดูเดือนนั้น แท่งมาจากช่อง "รวมจ่ายในสลิป" ที่คุณกรอก เดือนที่ยังไม่กรอกจะว่าง</p></div></section>
 <section class="card">
-  <h2>ตั้งค่าฐานเงินเดือน</h2>
+  <h2>3. ตั้งค่าฐานเงินเดือน</h2>
+  <p class="sub">เลือกรูปแบบรายได้ตามสัญญาจ้างของท่าน (รายเดือน / รายวัน)</p>
   <div class="field"><div style="max-width:220px"><label for="payType">รูปแบบค่าจ้าง</label><select id="payType"><option value="month">ค่าจ้างรายเดือน</option><option value="day">ค่าจ้างรายวัน</option></select></div>
   <div id="grpMonth" style="max-width:220px"><label for="salary">ค่าจ้างรายเดือน (วอน)</label><input type="number" id="salary" min="0"></div>
   <div id="grpDay" class="field" style="display:none"><div style="max-width:200px"><label for="daily">ค่าจ้างรายวัน (วอน/วัน)</label><input type="number" id="daily" min="0"></div><div style="max-width:200px"><label for="sunAmt">เบี้ยเลี้ยงวันอาทิตย์ (วอน/สัปดาห์)</label><input type="number" id="sunAmt" min="0" placeholder="0"></div><div style="max-width:180px"><label for="sunN">ได้เมื่อสัปดาห์นั้นทำงาน</label><select id="sunN"></select></div></div>
   <div style="max-width:220px"><label for="defBrk">เวลาพักเริ่มต้นต่อวัน</label><select id="defBrk"></select></div><div class="sub" id="hrNote" style="margin:0 0 6px"></div></div>
 </section>
+<section class="card" id="chartCard"><div class="chartbox"><div class="hd"><b id="chartTitle"></b><span class="sub" id="chartTot" style="margin:0"></span></div><div class="bars" id="chart"></div><p class="sub" style="margin:8px 0 0">แตะแท่งเพื่อดูเดือนนั้น แท่งมาจากช่อง "รวมจ่ายในสลิป" ที่คุณกรอก เดือนที่ยังไม่กรอกจะว่าง</p></div></section>
 <section class="card">
-  <h2>วันหยุดงานที่นายจ้างสั่งหยุด (휴업)</h2>
-  <p class="sub">ใช้กับวันที่เลือก "หยุดงาน" ในตาราง ตั้งตามข้อตกลงกับนายจ้าง</p>
-  <div class="field"><div style="max-width:260px"><label for="offPct">นายจ้างจ่ายชดเชย (% ของค่าจ้างรายวัน)</label><select id="offPct"></select></div>
-  <div class="sub" id="offNote" style="margin:0 0 6px"></div></div>
-  <label class="chk"><input type="checkbox" id="offDed" style="width:auto;margin-right:6px">หักค่าจ้างรายวันของวันหยุดงานออกจากเงินเดือนฐาน แล้วแทนด้วยค่าชดเชย</label>
-  <p id="offWarn" style="color:var(--red);font-size:.88rem;margin:8px 0 0"></p>
+  <h2>5. เงื่อนไขหากนายจ้างสั่งหยุดงาน</h2>
+  <p class="sub">หากนายจ้างมีการสั่งให้หยุดงาน ให้กรอกรายละเอียดในช่องนี้ หากไม่มีการหยุดงานไม่จำเป็นต้องกรอก ข้ามได้เลย</p>
+  <label class="chk" style="margin-top:0"><input type="checkbox" id="offOn" style="width:auto;margin-right:6px">มีวันที่นายจ้างสั่งหยุดงาน (ติ๊กเพื่อนำไปคำนวณ)</label>
+  <div id="offBody" style="display:none">
+    <div class="field" style="margin-top:8px"><div style="max-width:260px"><label for="offPct">นายจ้างจ่ายชดเชย (% ของค่าจ้างรายวัน)</label><select id="offPct"></select></div>
+    <div class="sub" id="offNote" style="margin:0 0 6px"></div></div>
+    <p style="color:var(--red);font-size:.88rem;margin:8px 0 0">หากนายจ้างมีการสั่งให้ลูกจ้างหยุดงาน ลูกจ้างจะได้รับค่าตอบแทน 70% ตามกฎหมาย (จ่ายต่ำกว่านี้ไม่ได้ เว้นแต่ได้รับอนุมัติจากคณะกรรมการแรงงานเท่านั้น)</p>
+  </div>
 </section>
 <section class="card">
-  <h2>สำรองข้อมูลกันหาย / ย้ายไปเครื่องอื่น</h2>
+  <h2>6. สำรองข้อมูลกันหาย / ย้ายไปเครื่องอื่น</h2>
   <p class="sub"><b>ทำอะไรได้:</b> เก็บข้อมูลทั้งหมดของคุณ (กะ เวลา ตัวเลข หมายเหตุ ค่าตั้งค่า) เป็นข้อความก้อนเดียว แล้วนำกลับมาใส่ได้ทุกเมื่อ<br><b>ทำไมต้องทำ:</b> ข้อมูลเก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ถ้าล้างข้อมูลเบราว์เซอร์ ใช้โหมดส่วนตัว หรือเปลี่ยนเครื่อง ข้อมูลจะหาย<br><b>ทำเพื่ออะไร:</b> กันข้อมูลหาย และย้ายข้อมูลระหว่างเครื่อง เช่น คอมพิวเตอร์กับ iPhone</p>
   <div class="bk">
     <div><b>① สำรองข้อมูล</b><p class="sub">กดปุ่ม ข้อความสำรองจะถูกคัดลอก นำไปวางเก็บในโน้ตหรือส่งให้ตัวเองได้</p><button id="bkMake">คัดลอกข้อมูลสำรอง</button></div>
@@ -208,12 +216,20 @@ input,select,textarea{border-radius:8px}
   <p class="sub" id="bkMsg"></p>
 </section>
 <section class="card">
-  <h2>ข้อมูลอ้างอิง</h2>
+  <h2>7. ข้อมูลอ้างอิง</h2>
   <details><summary>กติกาการคำนวณ </summary><ul id="tRules"></ul></details>
   <details open><summary>เวลาเริ่มต้นของแต่ละกะ (เลือกเองได้)</summary><p class="sub">เลือกเวลาเข้า-ออกตั้งต้นให้ตรงกับที่ทำงานของคุณ ใช้ตอนเลือกกะในตารางและปุ่มเลือกทั้งสัปดาห์</p><div class="scroll"><table id="tBrk"></table></div></details>
-  <details><summary>ค่าแรงขั้นต่ำและวันหยุดตามกฎหมายปี 2026</summary><div class="scroll"><table id="tHol"></table></div></details>
+  <details><summary>วันหยุดตามปฏิทินเกาหลี ปี 2026</summary><div class="scroll"><table id="tHol"></table></div></details>
+</section>
+<section class="card">
+  <h2>8. ส่งความคิดเห็น</h2>
+  <p class="sub">พบปัญหา อยากได้ฟีเจอร์เพิ่ม หรือมีข้อเสนอแนะ พิมพ์ส่งมาได้เลย</p>
+  <textarea id="fbBox" rows="3" maxlength="1000" aria-label="ข้อความความคิดเห็น" style="width:100%;padding:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:.9rem"></textarea>
+  <div class="tool"><button id="fbBtn">ส่งความคิดเห็น</button><span class="sub" id="fbMsg" style="margin:0"></span></div>
 </section>
 </main>
+<div id="helpModal" class="modal" hidden><div class="box" role="dialog" aria-label="วิธีใช้งาน"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">วิธีใช้งาน</h2><button class="alt" id="helpClose" type="button">ปิด</button></div><p class="sub">ข้อมูลทุกอย่างบันทึกอัตโนมัติในเครื่องของคุณ ผลที่ได้เป็นการคำนวณคร่าว ๆ เท่านั้น</p><div class="gs"><b>1. เลือกเดือนและปี</b><span class="sub" style="margin:0">เลือกเดือน/ปีที่มุมขวาบน ตารางและตัวเลขจะเปลี่ยนตามเดือนที่เลือก</span><svg viewBox="0 0 300 64" width="100%" role="img" aria-hidden="true" style="max-width:340px"><rect x="8" y="14" width="64" height="26" rx="6" fill="var(--card)" stroke="var(--line)"/><text x="22" y="31" fill="var(--ink)" font-size="11">10 ▾</text><text x="80" y="31" fill="var(--ink)" font-size="11">/</text><rect x="92" y="14" width="84" height="26" rx="6" fill="var(--card)" stroke="var(--line)"/><text x="106" y="31" fill="var(--ink)" font-size="11">2026 ▾</text><text x="190" y="31" fill="var(--mute)" font-size="10">เลือกเดือน/ปีมุมขวาบน</text></svg></div><div class="gs"><b>2. ตั้งค่าฐานเงินเดือน</b><span class="sub" style="margin:0">เลือกว่าได้ค่าจ้างรายเดือนหรือรายวันตามสัญญาจ้าง แล้วใส่ตัวเลข (ทำครั้งแรกครั้งเดียว)</span><svg viewBox="0 0 300 64" width="100%" role="img" aria-hidden="true" style="max-width:340px"><rect x="8" y="12" width="130" height="26" rx="6" fill="var(--card)" stroke="var(--line)"/><text x="18" y="29" fill="var(--ink)" font-size="11">ค่าจ้างรายเดือน ▾</text><rect x="150" y="12" width="140" height="26" rx="6" fill="var(--card)" stroke="var(--line)"/><text x="160" y="29" fill="var(--ink)" font-size="11">2,156,880</text><text x="8" y="56" fill="var(--mute)" font-size="10">เลือกรูปแบบรายได้ตามสัญญาจ้าง แล้วใส่ตัวเลข</text></svg></div><div class="gs"><b>3. บันทึกการเข้างาน</b><span class="sub" style="margin:0">เลือกกะของแต่ละวันในช่องวัน หรือกดปุ่ม เช้า / ดึก / หยุด เหนือแต่ละสัปดาห์ เพื่อเลือกทั้งสัปดาห์ (จ.–ศ.) ในครั้งเดียว แก้เวลาเข้า-ออกและเวลาพักของวันไหนก็ได้</span><svg viewBox="0 0 300 64" width="100%" role="img" aria-hidden="true" style="max-width:340px"><text x="8" y="14" fill="var(--mute)" font-size="10">กดปุ่มเดียว ได้ทั้งสัปดาห์:</text><rect x="150" y="3" width="30" height="15" rx="4" fill="var(--card)" stroke="var(--line)"/><text x="156" y="14" fill="var(--ink)" font-size="11" font-size="9">เช้า</text><rect x="184" y="3" width="30" height="15" rx="4" fill="var(--card)" stroke="var(--line)"/><text x="190" y="14" fill="var(--ink)" font-size="11" font-size="9">ดึก</text><rect x="218" y="3" width="30" height="15" rx="4" fill="var(--card)" stroke="var(--line)"/><text x="223" y="14" fill="var(--ink)" font-size="11" font-size="9">หยุด</text><rect x="8" y="22" width="36" height="34" rx="5" fill="#4ade80" fill-opacity=".3" stroke="#4ade80"/><text x="14" y="43" fill="var(--ink)" font-size="11">จ</text><rect x="48" y="22" width="36" height="34" rx="5" fill="#4ade80" fill-opacity=".3" stroke="#4ade80"/><text x="54" y="43" fill="var(--ink)" font-size="11">อ</text><rect x="88" y="22" width="36" height="34" rx="5" fill="#4ade80" fill-opacity=".3" stroke="#4ade80"/><text x="94" y="43" fill="var(--ink)" font-size="11">พ</text><rect x="128" y="22" width="36" height="34" rx="5" fill="#4ade80" fill-opacity=".3" stroke="#4ade80"/><text x="134" y="43" fill="var(--ink)" font-size="11">พฤ</text><rect x="168" y="22" width="36" height="34" rx="5" fill="#4ade80" fill-opacity=".3" stroke="#4ade80"/><text x="174" y="43" fill="var(--ink)" font-size="11">ศ</text><rect x="208" y="22" width="36" height="34" rx="5" fill="#22c55e" fill-opacity=".3" stroke="#4ade80"/><text x="214" y="43" fill="var(--ink)" font-size="11">ส</text><rect x="248" y="22" width="36" height="34" rx="5" fill="#22c55e" fill-opacity=".3" stroke="#4ade80"/><text x="254" y="43" fill="var(--ink)" font-size="11">อา</text></svg></div><div class="gs"><b>4. กรอกรายการหัก</b><span class="sub" style="margin:0">ใส่ยอดที่ถูกหักตามสลิปของเดือนนั้น ไม่มีรายการไหนก็เว้นว่าง</span><svg viewBox="0 0 300 64" width="100%" role="img" aria-hidden="true" style="max-width:340px"><rect x="8" y="10" width="136" height="26" rx="6" fill="var(--card)" stroke="var(--line)"/><text x="16" y="27" fill="var(--ink)" font-size="11">เงินบำนาญ 68,635</text><rect x="156" y="10" width="136" height="26" rx="6" fill="var(--card)" stroke="var(--line)"/><text x="164" y="27" fill="var(--ink)" font-size="11">ภาษีเงินได้ 166,670</text><text x="8" y="56" fill="var(--mute)" font-size="10">กรอกยอดหักตามสลิป ไม่มีให้เว้นว่าง</text></svg></div><div class="gs"><b>5. ดูเงินที่คาดว่าจะได้</b><span class="sub" style="margin:0">ด้านบนสุดจะแสดงรายได้รวมก่อนหัก รายการหัก และเงินเข้าบัญชีแบบคร่าว ๆ อัตโนมัติ (ไม่ต้องกดเครื่องคิดเลข)</span><svg viewBox="0 0 300 64" width="100%" role="img" aria-hidden="true" style="max-width:340px"><rect x="8" y="6" width="284" height="50" rx="8" fill="var(--card)" stroke="var(--line)"/><text x="20" y="24" fill="var(--mute)" font-size="10">เงินเข้าบัญชี (ประมาณการ)</text><text x="20" y="46" fill="var(--ink)" font-size="20" font-weight="700">₩3,389,665</text></svg></div><div class="gs"><b>6. ดาวน์โหลดเป็นหลักฐาน</b><span class="sub" style="margin:0">กดปุ่ม ดาวน์โหลด เลือกเฉพาะเดือนนี้หรือทั้งปี จะได้ไฟล์รูปภาพเก็บลงมือถือหรือคอมพิวเตอร์</span><svg viewBox="0 0 300 64" width="100%" role="img" aria-hidden="true" style="max-width:340px"><rect x="8" y="14" width="90" height="26" rx="6" fill="var(--card)" stroke="var(--line)"/><text x="18" y="31" fill="var(--ink)" font-size="11">ทั้งปี ▾</text><rect x="108" y="14" width="96" height="26" rx="6" fill="#3566f0"/><text x="122" y="31" fill="#fff" font-size="11">ดาวน์โหลด</text><text x="8" y="56" fill="var(--mute)" font-size="10">ได้ไฟล์รูปภาพ นำไปเป็นหลักฐานได้</text></svg></div></div></div>
+<button class="alt" id="toTop" type="button" title="กดเพื่อเลื่อนขึ้นไปบนสุด" aria-label="กดเพื่อเลื่อนขึ้นไปบนสุด">↑ บนสุด</button>
 
 <script>
 const DB={
@@ -221,14 +237,14 @@ const DB={
  shifts:{morning:{n:"กะเช้า",in:"08:00",out:"19:00",brk:60,b:["ปรับเวลาพักได้ในตาราง"]},
   night:{n:"กะดึก",in:"19:00",out:"08:00",brk:60,b:["ปรับเวลาพักได้ในตาราง"]},
   special:{n:"특근 วันหยุด",in:"08:00",out:"17:00",brk:60,b:["พัก 60 นาที"]}},
- hol:[["2026-01-01","ปีใหม่ 신정"],["2026-02-16","ซอลลัล 설날"],["2026-02-17","ซอลลัล 설날"],["2026-02-18","ซอลลัล 설날"],["2026-03-01","วันเอกราช 삼일절"],["2026-03-02","ชดเชยวันเอกราช"],["2026-05-01","วันแรงงาน 근로자의 날"],["2026-05-05","วันเด็ก 어린이날"],["2026-05-24","วันพระพุทธเจ้า 부처님오신날"],["2026-05-25","ชดเชยวันพระพุทธเจ้า"],["2026-06-03","เลือกตั้งท้องถิ่น 지방선거"],["2026-06-06","วันรำลึก 현충일"],["2026-08-15","วันปลดปล่อย 광복절"],["2026-08-17","ชดเชยวันปลดปล่อย"],["2026-09-24","ชูซ็อก 추석"],["2026-09-25","ชูซ็อก 추석"],["2026-09-26","ชูซ็อก 추석"],["2026-10-03","วันสถาปนาชาติ 개천절"],["2026-10-05","ชดเชยวันสถาปนาชาติ"],["2026-10-09","วันฮันกึล 한글날"],["2026-12-25","คริสต์มาส 성탄절"]]
+ hol:[["2026-01-01","ปีใหม่ 신정"],["2026-02-16","ซอลลัล 설날"],["2026-02-17","ซอลลัล 설날"],["2026-02-18","ซอลลัล 설날"],["2026-03-01","วันเอกราช 삼일절"],["2026-03-02","ชดเชยวันเอกราช 대체공휴일"],["2026-05-01","วันแรงงาน 근로자의 날"],["2026-05-05","วันเด็ก 어린이날"],["2026-05-24","วันพระพุทธเจ้า 부처님오신날"],["2026-05-25","ชดเชยวันพระพุทธเจ้า 대체공휴일"],["2026-06-03","เลือกตั้งท้องถิ่น 지방선거"],["2026-06-06","วันรำลึก 현충일"],["2026-08-15","วันปลดปล่อย 광복절"],["2026-08-17","ชดเชยวันปลดปล่อย 대체공휴일"],["2026-09-24","ชูซ็อก 추석"],["2026-09-25","ชูซ็อก 추석"],["2026-09-26","ชูซ็อก 추석"],["2026-10-03","วันสถาปนาชาติ 개천절"],["2026-10-05","ชดเชยวันสถาปนาชาติ 대체공휴일"],["2026-10-09","วันฮันกึล 한글날"],["2026-12-25","คริสต์มาส 성탄절"]]
 };
 const HOL=Object.fromEntries(DB.hol);
 const KEY="worklog-share-v1";
-let S={payType:"month",daily:82560,sunAmt:0,sunN:5,notes:{},offPct:70,offDeduct:true,days:{},slip:{},salary:2156880,defBrk:60,tax:{},other:{},util:{},shiftDef:{},slipNet:{},ded:{on:true,nps:0,nhi:0,ei:0}};
-try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);if(p&&p.days)S={days:p.days,slip:p.slip||{},salary:p.salary||2156880,defBrk:p.defBrk===undefined?60:p.defBrk,tax:p.tax||{},other:p.other||{},util:p.util||{},shiftDef:p.shiftDef||{},notes:p.notes||{},payType:p.payType||"month",daily:p.daily||82560,sunAmt:p.sunAmt||0,sunN:p.sunN||5,offPct:p.offPct===undefined?70:p.offPct,offDeduct:p.offDeduct!==false,slipNet:p.slipNet||{},ded:{on:true,nps:0,nhi:0,ei:0,...(p.ded||{})}}}}catch(e){}
+let S={offOn:false,nps:{},nhi:{},ei:{},payType:"month",daily:82560,sunAmt:0,sunN:5,notes:{},offPct:70,offDeduct:true,days:{},slip:{},salary:2156880,defBrk:60,tax:{},other:{},util:{},shiftDef:{},slipNet:{},ded:{on:true,nps:0,nhi:0,ei:0}};
+try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);if(p&&p.days)S={days:p.days,slip:p.slip||{},salary:p.salary||2156880,defBrk:p.defBrk===undefined?60:p.defBrk,tax:p.tax||{},other:p.other||{},util:p.util||{},nps:p.nps||{},nhi:p.nhi||{},ei:p.ei||{},offOn:p.offOn===true,shiftDef:p.shiftDef||{},notes:p.notes||{},payType:p.payType||"month",daily:p.daily||82560,sunAmt:p.sunAmt||0,sunN:p.sunN||5,offPct:p.offPct===undefined?70:p.offPct,offDeduct:p.offDeduct!==false,slipNet:p.slipNet||{},ded:{on:true,nps:0,nhi:0,ei:0,...(p.ded||{})}}}}catch(e){}
 function applyDef(){Object.entries(S.shiftDef||{}).forEach(([k,o])=>{if(DB.shifts[k])Object.assign(DB.shifts[k],o)})}
-applyDef();
+applyDef();S.ded.on=true;S.offDeduct=true;
 const $=id=>document.getElementById(id);
 const save=()=>{const el=document.getElementById("saved");try{localStorage.setItem(KEY,JSON.stringify(S));if(el)el.textContent="✓ บันทึกในเครื่องนี้แล้ว "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})}catch(e){if(el)el.textContent="บันทึกไม่ได้ เบราว์เซอร์อาจปิดการเก็บข้อมูลหรืออยู่ในโหมดส่วนตัว"}};
 const won=n=>"₩"+Math.round(n).toLocaleString("ko-KR");
@@ -262,9 +278,8 @@ function brkOpts(sel,val){
 }
 const fl10=n=>Math.floor(n/10)*10;
 function deds(ym){
-  const D=S.ded;if(!D.on)return [];
-  const nhiT=fl10(D.nhi*0.0719),t=S.tax[ym]||0;
-  return [["국민연금 เงินบำนาญ",fl10(D.nps*0.095)/2],["건강보험 ประกันสุขภาพ",nhiT/2],["고용보험 ประกันการว่างงาน",fl10(D.ei*0.009)],["장기요양 ดูแลระยะยาว",fl10(nhiT*0.1314)/2],["소득세 ภาษีเงินได้",t],["지방소득세 ภาษีท้องถิ่น",fl10(t*0.1)],["ค่าห้อง",S.other[ym]||0],["ค่าไฟ-แก๊ส",S.util[ym]||0]];
+  const g=k=>S[k][ym]||0,nhi=g("nhi");
+  return [["국민연금 เงินบำนาญ",g("nps")],["건강보험 ประกันสุขภาพ",nhi],["고용보험 ประกันการว่างงาน",g("ei")],["장기요양 ดูแลระยะยาว",fl10(nhi*0.1314)],["소득세 ภาษีเงินได้",g("tax")],["지방소득세 ภาษีท้องถิ่น",fl10(g("tax")*0.1)],["ค่าห้อง",g("other")],["ค่าไฟ-แก๊ส",g("util")]];
 }
 function calc(d){
   if(!d||!d.shift||!d.in||!d.out)return null;
@@ -283,11 +298,11 @@ function cells(tr,ds){
   tr.querySelector(".nt").textContent=c?f2(c.n):"";
 }
 const wkOf=ds=>{const d=new Date(ds+"T00:00:00");d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
-function stats(pre){let a=0,b=0,ah=0,bh=0;Object.entries(S.days).forEach(([ds,d])=>{if(!ds.startsWith(pre))return;const c=calc(d);if(!c)return;const w=new Date(ds+"T00:00:00").getDay();if(w===0||w===6||HOL[ds]){b++;bh+=c.h}else{a++;ah+=c.h}});return{a,b,ah,bh}}
+function stats(pre){let a=0,b=0,ah=0,bh=0,oh=0,nh=0;Object.entries(S.days).forEach(([ds,d])=>{if(!ds.startsWith(pre))return;const c=calc(d);if(!c)return;oh+=c.ot;nh+=c.n;const w=new Date(ds+"T00:00:00").getDay();if(w===0||w===6||HOL[ds]){b++;bh+=c.h}else{a++;ah+=c.h}});return{a,b,ah,bh,oh,nh}}
 function renderMini(ym){const s=stats(ym);$("mini").innerHTML=`<div>วันธรรมดา (จ.–ศ.)<b>${s.a} วัน · ${r2(s.ah)} ชม.</b></div><div>วันหยุด (ส.–อา. และวันแดง)<b>${s.b} วัน · ${r2(s.bh)} ชม.</b></div>`}
 function summary(){
   const ym=$("month").value;let ot=0,sp=0,n=0,days=0,tot=0,offN=0,nd=0;const wk={};
-  Object.entries(S.days).forEach(([ds,d])=>{if(!ds.startsWith(ym))return;if(d.shift==="off")offN++;const c=calc(d);if(!c)return;days++;if(d.shift!=="special")nd++;const wkk=wkOf(ds);wk[wkk]=(wk[wkk]||0)+1;tot+=c.h;ot+=c.ot;sp+=c.sp;n+=c.n});
+  Object.entries(S.days).forEach(([ds,d])=>{if(!ds.startsWith(ym))return;if(d.shift==="off"&&S.offOn)offN++;const c=calc(d);if(!c)return;days++;if(d.shift!=="special")nd++;const wkk=wkOf(ds);wk[wkk]=(wk[wkk]||0)+1;tot+=c.h;ot+=c.ot;sp+=c.sp;n+=c.n});
   const day=S.payType==="day",hr=day?S.daily/DB.std:S.salary/DB.hours;
   const L=[["기본급 ฐานเงินเดือน"+(day?" (× "+nd+" วัน)":""),"",day?S.daily*nd:S.salary],["잔업수당 ค่า OT (×1.5)",ot,ot*hr*DB.mult.ot],["특근수당 ค่าทำงานวันหยุด (×1.5)",sp,sp*hr*DB.mult.sp],["야간수당 ค่ากะดึก (×0.5)",n,n*hr*DB.mult.night]].map(([l,h,v])=>[l,h,Math.round(v)]);
   if(day){const sw=Object.values(wk).filter(x=>x>=S.sunN).length;if(S.sunAmt>0&&sw)L.push(["เบี้ยเลี้ยงวันอาทิตย์ ("+sw+" สัปดาห์)","",Math.round(S.sunAmt*sw)])}
@@ -296,18 +311,18 @@ function summary(){
   const D=deds(ym).filter(x=>x[1]>0),dt=D.reduce((a,x)=>a+x[1],0),net=g-dt;
   const dedRows=D.map(([l,v])=>`<tr class="red"><td>${l}</td><td></td><td class="r">−${won(v)}</td></tr>`).join("")+(S.ded.on?`<tr class="tot red"><td>รวมหัก 공제액 계</td><td></td><td class="r">−${won(dt)}</td></tr><tr class="tot"><td>เงินเข้าบัญชี 실지급액</td><td></td><td class="r">${won(net)}</td></tr>`:"");
   $("lines").innerHTML=L.map(([l,h,v])=>`<tr class="${v<0?"red":""}"><td>${l}</td><td class="r">${h===""?"":r2(h)+" ชม."}</td><td class="r">${v<0?"−"+won(-v):won(v)}</td></tr>`).join("")+`<tr class="tot"><td>รายได้รวมก่อนหัก 지급액 계</td><td></td><td class="r">${won(g)}</td></tr>`+dedRows;
-  $("gross").textContent=won(S.ded.on?net:g);$("glbl").textContent=S.ded.on?"เงินเข้าบัญชี 실지급액 (ประมาณการ)":"รายได้รวมก่อนหัก (ประมาณการ)";$("tax").value=S.tax[ym]||"";$("other").value=S.other[ym]||"";$("util").value=S.util[ym]||"";$("slipNet").value=S.slipNet[ym]||"";
+  $("gross").textContent=won(S.ded.on?net:g);$("glbl").textContent=S.ded.on?"เงินเข้าบัญชี 실지급액 (ประมาณการ)":"รายได้รวมก่อนหัก (ประมาณการ)";$("tax").value=S.tax[ym]||"";$("d_nps").value=S.nps[ym]||"";$("d_nhi").value=S.nhi[ym]||"";$("d_ei").value=S.ei[ym]||"";$("offBody").style.display=S.offOn?"":"none";$("other").value=S.other[ym]||"";$("util").value=S.util[ym]||"";$("slipNet").value=S.slipNet[ym]||"";
   $("meta").textContent=`ทำงาน ${days} วัน${offN?` · หยุดงาน ${offN} วัน`:""} · ชั่วโมงสุทธิ ${r2(tot)} ชม. · ค่าแรง ${won(hr)}/ชม.`+(S.ded.on?` · รายได้รวม ${won(g)}`:"");
   const sv=S.slip[ym];$("slip").value=sv||"";
   const sn=S.slipNet[ym];
   const cmp=(s,v,l)=>s?(Math.round(s)===v?`<div><b class="ok">${l}ตรงกับสลิปพอดี ✓</b></div>`:`<div><b class="no">${l}ต่างจากสลิป ${v-s>0?"+":"−"}${won(Math.abs(v-s))}</b></div>`):"";
   $("chk").innerHTML=cmp(sv,g,"รายได้รวม ")+(S.ded.on?cmp(sn,net,"เงินเข้าบัญชี "):"");
   drawChart(ym);$("grpMonth").style.display=day?"none":"";$("grpDay").style.display=day?"":"none";renderMini(ym);$("hrNote").textContent=(day?"ค่าแรงต่อชั่วโมง = ค่าจ้างรายวัน ÷ 8 = ":"ค่าแรงต่อชั่วโมง = เงินเดือน ÷ 209 = ")+won(hr);
-  const dl=hr*DB.std;$("offNote").textContent="ค่าจ้างรายวัน = "+won(dl)+" · ชดเชยวันละ "+won(dl*S.offPct/100)+(day?" (โหมดรายวัน: ไม่หักเงินเดือนฐาน)":"");$("offWarn").textContent=S.offPct<70?"ต่ำกว่า 70% ซึ่งเป็นขั้นต่ำตามกฎหมายแรงงานเกาหลีกรณีนายจ้างสั่งหยุด (คิดจากค่าจ้างเฉลี่ย) จ่ายต่ำกว่านี้ได้เมื่อได้รับอนุมัติจากคณะกรรมการแรงงานเท่านั้น":"";
+  const dl=hr*DB.std;$("offNote").textContent="ค่าจ้างรายวัน = "+won(dl)+" · ชดเชยวันละ "+won(dl*S.offPct/100)+(day?" (โหมดรายวัน: ไม่หักเงินเดือนฐาน)":"");
 }
 function monthPay(ym){
   let ot=0,sp=0,n=0,offN=0,has=0;
-  Object.entries(S.days).forEach(([ds,d])=>{if(!ds.startsWith(ym))return;if(d.shift==="off")offN++;const c=calc(d);if(!c)return;has++;ot+=c.ot;sp+=c.sp;n+=c.n});
+  Object.entries(S.days).forEach(([ds,d])=>{if(!ds.startsWith(ym))return;if(d.shift==="off"&&S.offOn)offN++;const c=calc(d);if(!c)return;has++;ot+=c.ot;sp+=c.sp;n+=c.n});
   if(!has&&!offN)return null;
   const hr=S.salary/DB.hours,dly=hr*DB.std;
   let g=Math.round(S.salary)+Math.round(ot*hr*DB.mult.ot)+Math.round(sp*hr*DB.mult.sp)+Math.round(n*hr*DB.mult.night);
@@ -318,7 +333,7 @@ function drawChart(ym){
   const Y=ym.slice(0,4),names=["01","02","03","04","05","06","07","08","09","10","11","12"];
   const vals=names.map((_,i)=>S.slip[Y+"-"+pad(i+1)]||0);
   const mx=Math.max(...vals,1),tot=vals.reduce((a,x)=>a+x,0);
-  $("chartTitle").textContent="รวมรายได้รายเดือนประจำปี "+Y;
+  $("chartTitle").textContent="4. รวมรายได้รายเดือนประจำปี "+Y;
   $("chartTot").textContent="รวมทั้งปี "+won(tot);
   $("chart").innerHTML=names.map((nm,i)=>{const m=Y+"-"+pad(i+1),v=vals[i],px=v?Math.max(4,Math.round(v/mx*96)):2;
     return `<button class="bar${m===ym?" sel":""}" data-m="${m}" title="${nm} ${won(v)}" aria-label="${nm} ${won(v)}"><span class="col"><span class="v">${v?(v/1e6).toFixed(2)+"M":""}</span><span class="fill" style="height:${px}px"></span></span><span class="mn">${nm}</span></button>`}).join("");
@@ -345,10 +360,10 @@ function build(){
   let i=1,wi=0;
   while(i<=n){
     const first=(new Date(Y,M-1,i).getDay()+6)%7,last=Math.min(n,i+6-first),a=i;
-    const wk=document.createElement("div");wk.className="wk w"+(wi%4);
+    const wk=document.createElement("div");wk.className="wk w"+(wi%2);
     wk.innerHTML=`<span class="wkb">เลือกทั้งสัปดาห์ (จ.–ศ.): <button class="alt sm" data-k="morning">เช้า</button><button class="alt sm" data-k="night">ดึก</button><button class="alt sm" data-k="off">หยุด</button><button class="alt sm" data-k="">ล้าง</button></span>`;
     wk.querySelectorAll("button").forEach(bt=>bt.onclick=()=>applyWeek(ym,a,last,bt.dataset.k));
-    const row=document.createElement("div");row.className="week w"+(wi%4);
+    const row=document.createElement("div");row.className="week w"+(wi%2);
     for(let p=0;p<first;p++)row.appendChild(empty());
     for(let d=a;d<=last;d++){
       const ds=ym+"-"+pad(d),wd=(new Date(Y,M-1,d).getDay()+6)%7,hn=HOL[ds],off=wd>=5||hn;
@@ -369,10 +384,10 @@ function build(){
       fill(tr,ds);cells(tr,ds);row.appendChild(tr);
     }
     for(let p=first+(last-a+1);p<7;p++)row.appendChild(empty());
-    const gp=document.createElement("div");gp.className="wgrp w"+(wi%4);gp.appendChild(wk);gp.appendChild(row);wb.appendChild(gp);
+    const gp=document.createElement("div");gp.className="wgrp w"+(wi%2);gp.appendChild(wk);gp.appendChild(row);wb.appendChild(gp);
     i=last+1;wi++;
   }
-  summary();
+  summary();syncTop();
 }
 $("month").addEventListener("input",build);
 $("slip").addEventListener("input",()=>{const v=parseFloat($("slip").value);const ym=$("month").value;if(v>0)S.slip[ym]=v;else delete S.slip[ym];save();
@@ -381,13 +396,10 @@ $("salary").value=S.salary;
 brkOpts($("defBrk"),S.defBrk);$("defBrk").addEventListener("input",()=>{S.defBrk=parseFloat($("defBrk").value)||0;save()});
 $("salary").addEventListener("input",()=>{S.salary=parseFloat($("salary").value)||0;save();summary()});
 const bindN=(id,set)=>$(id).addEventListener("input",()=>{set(parseFloat($(id).value)||0);save();const a=$(id).value;summary();$(id).value=a});
-["nps","nhi","ei"].forEach(k=>{$("b_"+k).value=S.ded[k];bindN("b_"+k,v=>{S.ded[k]=v})});
-$("dedOn").checked=S.ded.on;$("dedOn").addEventListener("input",()=>{S.ded.on=$("dedOn").checked;save();summary()});
-["tax","other","util","slipNet"].forEach(o=>bindN(o,v=>{const ym=$("month").value;if(v>0)S[o][ym]=v;else delete S[o][ym]}));
+[["d_nps","nps"],["d_nhi","nhi"],["d_ei","ei"],["tax","tax"],["other","other"],["util","util"],["slipNet","slipNet"]].forEach(([id,o])=>bindN(id,v=>{const ym=$("month").value;if(v>0)S[o][ym]=v;else delete S[o][ym]}));
 const op=$("offPct");op.innerHTML=Array.from({length:21},(_,i)=>`<option value="${i*5}">${i*5}%${i*5===70?" (ขั้นต่ำตามกฎหมาย)":""}</option>`).join("");op.value=String(S.offPct);
 op.addEventListener("input",()=>{S.offPct=parseFloat(op.value)||0;save();summary()});
-$("offDed").checked=S.offDeduct;$("offDed").addEventListener("input",()=>{S.offDeduct=$("offDed").checked;save();summary()});
-function initPay(){$("payType").value=S.payType;$("daily").value=S.daily;$("sunAmt").value=S.sunAmt||"";$("sunN").value=String(S.sunN)}
+function initPay(){$("payType").value=S.payType;$("daily").value=S.daily;$("sunAmt").value=S.sunAmt||"";$("sunN").value=String(S.sunN);$("offOn").checked=S.offOn}
 $("sunN").innerHTML=[1,2,3,4,5,6].map(n=>`<option value="${n}">${n} วันขึ้นไป</option>`).join("");
 initPay();
 $("payType").addEventListener("input",()=>{S.payType=$("payType").value;save();summary()});
@@ -405,7 +417,7 @@ function mkImage(scope){return new Promise((res,rej)=>{
     return {title:pad(mm)+"/"+yy,rows}}).filter(b=>b.rows.length);
   if(!blocks.length){rej(new Error("empty"));return}
   const st=stats(scope==="year"?Y:ym);
-  const H=70+blocks.reduce((a,b)=>a+(scope==="year"?34:0)+30+b.rows.length*RH+10,0)+100;
+  const H=70+blocks.reduce((a,b)=>a+(scope==="year"?34:0)+30+b.rows.length*RH+10,0)+150;
   const sc=Math.max(0.6,Math.min(2,Math.sqrt(12e6/(W*H)),14000/H));
   const cv=document.createElement("canvas");cv.width=Math.round(W*sc);cv.height=Math.round(H*sc);
   const c=cv.getContext("2d");c.scale(sc,sc);
@@ -424,9 +436,10 @@ function mkImage(scope){return new Promise((res,rej)=>{
       T(r.date,34,y+19,col,"13px "+F);T(r.shift,150,y+19,"#1f2328","13px "+F,92);T(r.time,250,y+19,"#1f2328","13px "+F);T(r.brk,365,y+19,"#1f2328","13px "+F);T(r.ot,445,y+19,"#1f2328","13px "+F);T(r.nt2,525,y+19,"#1f2328","13px "+F);T(r.note,615,y+19,col,"13px "+F,W-24-615-10);
       y+=RH});
     y+=10});
-  c.strokeStyle="#d0d7de";c.strokeRect(24,y+6,W-48,70);
-  T("วันธรรมดา (จ.–ศ.)",40,y+30,"#57606a","12px "+F);T(st.a+" วัน · "+r2(st.ah)+" ชม.",40,y+56,"#1f2328","700 17px "+F);
-  T("วันหยุด (ส.–อา. และวันแดง)",W/2+16,y+30,"#57606a","12px "+F);T(st.b+" วัน · "+r2(st.bh)+" ชม.",W/2+16,y+56,"#1f2328","700 17px "+F);
+  c.strokeStyle="#d0d7de";c.strokeRect(24,y+6,W-48,112);
+  const bx=(t,v,x,yy)=>{T(t,x,yy,"#57606a","12px "+F);T(v,x,yy+26,"#1f2328","700 17px "+F)};
+  bx("วันธรรมดา (จ.–ศ.)",st.a+" วัน · "+r2(st.ah)+" ชม.",40,y+30);bx("วันหยุด (ส.–อา. และวันแดง)",st.b+" วัน · "+r2(st.bh)+" ชม.",W/2+16,y+30);
+  bx("รวมเวลาโอที",r2(st.oh)+" ชม.",40,y+82);bx("รวมเวลากะดึก",r2(st.nh)+" ชม.",W/2+16,y+82);
   cv.toBlob(b=>b?res(b):rej(new Error("blob")),"image/png")})}
 $("dlBtn").onclick=async()=>{
   const m=$("dlMsg"),sc=$("dlScope").value,ym=$("month").value;m.textContent="กำลังสร้างรูป...";
@@ -439,6 +452,20 @@ $("dlBtn").onclick=async()=>{
     $("dlPrev").src=u;$("dlPrev").style.display="block";m.textContent="ถ้าไฟล์ไม่ถูกบันทึก ให้กดค้างที่รูปด้านล่างแล้วเลือกบันทึกรูปภาพ";
   }catch(e){m.textContent=e&&e.message==="empty"?"ยังไม่มีข้อมูลให้ดาวน์โหลด":"สร้างรูปไม่สำเร็จ ลองใหม่อีกครั้ง"}
 };
+function syncTop(){const r=$("rowsScroll"),t=$("topScroll");$("topInner").style.width=r.scrollWidth+"px";t.style.display=r.scrollWidth>r.clientWidth+2?"":"none"}
+$("topScroll").addEventListener("scroll",()=>{$("rowsScroll").scrollLeft=$("topScroll").scrollLeft});
+$("rowsScroll").addEventListener("scroll",()=>{$("topScroll").scrollLeft=$("rowsScroll").scrollLeft});
+window.addEventListener("resize",syncTop);
+$("offOn").checked=S.offOn;$("offOn").addEventListener("input",()=>{S.offOn=$("offOn").checked;save();summary()});
+$("helpBtn").onclick=()=>{$("helpModal").hidden=false};
+$("helpClose").onclick=()=>{$("helpModal").hidden=true};
+$("helpModal").addEventListener("click",e=>{if(e.target===$("helpModal"))$("helpModal").hidden=true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("helpModal").hidden=true});
+$("toTop").onclick=()=>{try{window.scrollTo({top:0,behavior:"smooth"});$("top").scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}};
+$("fbBtn").onclick=async()=>{const t=$("fbBox").value.trim(),m=$("fbMsg");if(!t){m.textContent="พิมพ์ข้อความก่อนส่ง";return}
+  try{const u=await claude.use("user"),db=await claude.use("db"),id=await u.id();if(!db||!id)throw 0;await db.collection("feedback/"+id+"/items").add({text:t,at:Date.now()});$("fbBox").value="";m.textContent="ขอบคุณสำหรับความคิดเห็น ส่งเรียบร้อยแล้ว";return}catch(e){}
+  try{await navigator.clipboard.writeText(t)}catch(e){}
+  m.textContent="ยังส่งอัตโนมัติจากหน้านี้ไม่ได้ คัดลอกข้อความไว้แล้ว นำไปส่งให้ผู้พัฒนาทางช่องทางที่ติดต่อกันได้เลย"};
 $("clear").onclick=()=>{const ym=$("month").value;Object.keys(S.days).forEach(k=>{if(k.startsWith(ym))delete S.days[k]});Object.keys(S.notes).forEach(k=>{if(k.startsWith(ym))delete S.notes[k]});save();build()};
 $("bkMake").onclick=()=>{
   const t=JSON.stringify(S),b=$("bkBox"),m=$("bkMsg");b.value=t;b.focus();b.select();
@@ -449,11 +476,11 @@ $("bkLoad").onclick=()=>{
   const m=$("bkMsg");
   try{
     const p=JSON.parse($("bkBox").value);if(!p||typeof p!=="object"||!p.days)throw 0;
-    ["days","slip","tax","other","util","shiftDef","slipNet","notes"].forEach(k=>{S[k]=p[k]||{}});
+    ["days","slip","tax","other","util","nps","nhi","ei","shiftDef","slipNet","notes"].forEach(k=>{S[k]=p[k]||{}});
     if(p.salary)S.salary=p.salary;if(p.defBrk!==undefined)S.defBrk=p.defBrk;if(p.offPct!==undefined)S.offPct=p.offPct;if(p.offDeduct!==undefined)S.offDeduct=p.offDeduct;
-    S.ded={...S.ded,...(p.ded||{})};["payType","daily","sunAmt","sunN"].forEach(k=>{if(p[k]!==undefined)S[k]=p[k]});save();applyDef();drawShiftTable();initPay();
-    $("salary").value=S.salary;brkOpts($("defBrk"),S.defBrk);["nps","nhi","ei"].forEach(k=>$("b_"+k).value=S.ded[k]);
-    $("dedOn").checked=S.ded.on;op.value=String(S.offPct);$("offDed").checked=S.offDeduct;build();
+    S.ded={...S.ded,...(p.ded||{})};["payType","daily","sunAmt","sunN","offOn"].forEach(k=>{if(p[k]!==undefined)S[k]=p[k]});save();applyDef();drawShiftTable();initPay();
+    $("salary").value=S.salary;brkOpts($("defBrk"),S.defBrk);
+    op.value=String(S.offPct);build();
     m.textContent="นำเข้าข้อมูลสำเร็จ";
   }catch(e){m.textContent="ข้อความสำรองไม่ถูกต้อง ตรวจสอบว่าวางครบทั้งข้อความ"}
 };
@@ -462,14 +489,13 @@ $("bkLoad").onclick=()=>{
   const set=x=>{t=x;r.setAttribute("data-theme",x);b.textContent=x==="dark"?"☀️ โหมดสว่าง":"🌙 โหมดมืด";try{localStorage.setItem("worklog-theme",x)}catch(e){}};
   b.onclick=()=>set(t==="dark"?"light":"dark");set(t)})();
 $("tRules").innerHTML=[
- "ค่าแรงต่อชั่วโมง = เงินเดือนฐาน ÷ 209 ชม. (ปี 2026 ขั้นต่ำ ₩10,320 ต่อชั่วโมง)",
- "เวลาพักวันละ 60 นาทีไม่ได้รับค่าจ้าง ชั่วโมงสุทธิ = เวลาออก − เวลาเข้า − เวลาพัก",
- "วันทำงานปกติ: ชั่วโมงสุทธิส่วนที่เกิน 8 ชม. คือ OT จ่าย 1.5 เท่า",
- "วันเสาร์หรือวันหยุด (특근): ชั่วโมงสุทธิทั้งหมดจ่าย 1.5 เท่า แยกบรรทัดจาก OT",
- "กะดึก: ชั่วโมงสุทธิช่วง 22:00–06:00 จ่ายเพิ่ม 0.5 เท่า ซ้อนกับ OT ได้",
- "ประกันสังคม: บำนาญ 4.75%, สุขภาพ 3.595%, การจ้างงาน 0.9% ของฐานที่แจ้งไว้ และดูแลระยะยาว 13.14% ของเบี้ยสุขภาพ ปัดเศษลงเป็นหลัก 10 วอน",
- "ภาษีเงินได้กรอกตามสลิป ภาษีท้องถิ่นคิด 10% ของภาษีเงินได้",
- "วันหยุดงานที่นายจ้างสั่ง: ค่าจ้างรายวัน = ค่าแรงต่อชั่วโมง × 8 ชม. เว็บหักค่าจ้างรายวันออกจากเงินเดือนฐาน แล้วบวกค่าชดเชยตาม % ที่เลือก"].map(t=>`<li>${t}</li>`).join("");
+ "ค่าแรงต่อชั่วโมง: รายเดือน = เงินเดือน ÷ 209 ชม. รายวัน = ค่าจ้างรายวัน ÷ 8 ชม. (ค่าแรงขั้นต่ำปี 2026 คือ ₩10,320 ต่อชั่วโมง)",
+ "เวลาพักไม่ได้รับค่าจ้าง: ชั่วโมงสุทธิ = เวลาออก − เวลาเข้า − เวลาพัก",
+ "โอที (OT): ชั่วโมงสุทธิส่วนที่เกิน 8 ชม. ในวันทำงานปกติ จ่าย 1.5 เท่า",
+ "특근 (ทำงานวันเสาร์หรือวันหยุด): ชั่วโมงสุทธิทั้งหมดจ่าย 1.5 เท่า",
+ "กะดึก (22:00–06:00): จ่ายเพิ่มอีก 0.5 เท่าของชั่วโมงที่ทำในช่วงนี้ และรวมกับโอทีได้",
+ "ประกันสังคม (ส่วนที่ลูกจ้างจ่าย ปี 2026): เงินบำนาญ 4.75%, ประกันสุขภาพ 3.595%, ประกันการว่างงาน 0.9% ให้กรอกยอดที่ถูกหักตามสลิป ส่วนประกันดูแลระยะยาว (13.14% ของประกันสุขภาพ) และภาษีท้องถิ่น (10% ของภาษีเงินได้) เว็บคำนวณให้เอง"
+].map(t=>`<li>${t}</li>`).join("");
 function drawShiftTable(){
   const t=$("tBrk");
   t.innerHTML=Object.entries(DB.shifts).map(([k,v])=>`<tr><td><b>${v.n}</b></td><td>เข้า <span class="tp" data-s="${k}" data-t="in"><select class="hh"></select>:<select class="mm"></select></span></td><td>ออก <span class="tp" data-s="${k}" data-t="out"><select class="hh"></select>:<select class="mm"></select></span></td></tr>`).join("");
@@ -477,7 +503,7 @@ function drawShiftTable(){
     el.addEventListener("input",()=>{const v=el.querySelector(".hh").value+":"+el.querySelector(".mm").value;DB.shifts[k][w]=v;S.shiftDef[k]={...(S.shiftDef[k]||{}),[w]:v};save()})});
 }
 drawShiftTable();
-$("tHol").innerHTML=`<tr><td>ค่าแรงขั้นต่ำต่อชั่วโมง</td><td>${won(DB.minWage)}</td></tr><tr><td>ค่าแรงขั้นต่ำต่อเดือน (209 ชม.)</td><td>${won(DB.minWage*DB.hours)}</td></tr>`+DB.hol.map(([d,n])=>`<tr><td>${d}</td><td>${n}</td></tr>`).join("");
+$("tHol").innerHTML=DB.hol.map(([d,n])=>`<tr><td>${d.slice(8)}/${d.slice(5,7)}/${d.slice(0,4)}</td><td>${n}</td></tr>`).join("");
 build();
 </script>
 </body>
